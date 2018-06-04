@@ -2,21 +2,20 @@ package dynamics;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Image;
 
 public class Bird {
-	private int xPos, yPos, w, h;
+	private int xPos, yPos;
 	double fall;
-	public Bird(int x, int y, int w, int h) {
+	Image img;
+	public Bird(Image img, int x, int y) {
 		this.xPos = x;
 		this.yPos = y;
-		this.w = w;
-		this.h = h;
+		this.img = img;
 		fall = 0;
 	}
 	public void display(Graphics g) {
-		g.setColor(Color.yellow);
-		g.fillOval(xPos, yPos, w, h);
-		update();
+		g.drawImage(img, this.xPos, this.yPos, null);
 	}
 	public void update() {
 		int add = (int)Math.round((-0.10*Math.pow((fall+3), 2) + 10)); 
@@ -27,8 +26,24 @@ public class Bird {
 		}
 		fall+=0.3;
 	}
+	public int getxPos() {
+		return xPos;
+	}
+	public void setxPos(int xPos) {
+		this.xPos = xPos;
+	}
+	public int getyPos() {
+		return yPos;
+	}
+	public void setyPos(int yPos) {
+		this.yPos = yPos;
+	}
 	public void clicked() {
 		fall = 0;
 	}
+	public Image getImg() {
+		return img;
+	}
+
 	
 }
