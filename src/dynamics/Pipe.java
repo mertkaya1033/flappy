@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 public class Pipe {
-
 	private int xPos, w, h, spaceY, spaceW, retX;
 	boolean birdPassed = false;
 	public Pipe(int xPos, int w, int h, int spaceY, int spaceW,int retX) {
@@ -15,11 +14,10 @@ public class Pipe {
 		this.spaceW= spaceW;
 		this.retX = retX;
 	}
-	public void display(Graphics g, int speed) {
-		g.setColor(new Color(155, 255, 147));
+	public void display(Graphics g) {
+		g.setColor(new Color(27, 163, 48));
 		g.fillRect(this.xPos, 0, this.w, this.spaceY);
 		g.fillRect(xPos, this.spaceW + this.spaceY, this.w, this.h - this.spaceW - this.spaceY);
-		update(speed);
 	}
 	public boolean isColliding(Bird b) {
 		boolean bXin = b.getxPos() + b.getImg().getWidth(null) > this.xPos && b.getxPos()< this.xPos + w;

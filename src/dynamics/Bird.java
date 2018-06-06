@@ -13,9 +13,10 @@ public class Bird {
 		this.yPos = y;
 		this.img = img;
 		fall = 0;
+		
 	}
 	public void display(Graphics g) {
-		g.drawImage(img, this.xPos, this.yPos, null);
+		g.drawImage(img, xPos, yPos, null);
 	}
 	public void update() {
 		int add = (int)Math.round((-0.10*Math.pow((fall+3), 2) + 10)); 
