@@ -47,6 +47,7 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 	private Button bMainMenu;
 	private Button bTryAgain;
 	private Button bHighScores;
+//	private Button bClear;
 	private BufferedWriter writer;
 	private BufferedReader reader;
 	/********************************************************************************/
@@ -73,7 +74,7 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 		if(scene.equals("menu")) {
 			mainMenu(g);
 		}else if(scene.equals("instructions")) {
-
+			instructions(g);
 		}else if(scene.equals("gameplay")) {
 			gamePlay(g);
 		}else if(scene.equals("skins")) {
@@ -190,12 +191,7 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 		else flappy.update();
 	}
 	public void highScores(Graphics g) {
-		for(int i = 0; i < background.length; i++) {
-			g.drawImage(background[i], backgroundX[i], 0, null);
-		}
-		for(int i = 0; i < ground.length; i++) {
-			g.drawImage(ground[i], groundX[i], frameH - ground[i].getHeight(null), null);
-		}
+		background(g);
 		g.setColor(new Color(0,0,0,100));
 		g.fillRect(0, 0, frameW, frameH);
 		this.drawTextMiddle(g, "HIGH SCORES", this.frameW/2, 100, 65, new Color(255, 100, 100));
@@ -203,8 +199,14 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 		bMainMenu.setPos(frameW/2, frameH-140);
 		bMainMenu.display(g);
 	}
-	
-	
+	public void instructions(Graphics g) {
+		background(g);
+		g.setColor(new Color(0,0,0,100));
+		g.fillRect(0, 0, frameW, frameH);
+		this.drawTextMiddle(g, "INSTRUCTIONS", this.frameW/2, 100, 58, new Color(255, 100, 100));
+		bMainMenu.setPos(frameW/2, frameH-140);
+		bMainMenu.display(g);
+	}
 	
 	public void init() {
 		gameOver = false;
@@ -252,9 +254,16 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 		addHighScore(score, true);
 	}
 	public void addHighScore(int score, boolean appendFile) {
+		String currentMinute = LocalTime.now().getMinute() + "";
 		String currentDate = LocalDate.now().getDayOfMonth() + "/" + LocalDate.now().getMonthValue() + "/" + LocalDate.now().getYear();
-		String currentTime = LocalTime.now().getHour() + ":" + LocalTime.now().getMinute();
-		if(LocalTime.now().getMinute()== 0) currentTime+="0";
+		if(Integer.parseInt(currentMinute) == 0) currentMinute+="0";
+		else if(Integer.parseInt(currentMinute) < 10) {
+			char[]copy = new char[2];
+			copy[1] = currentMinute.toCharArray()[0];
+			copy[0] = '0';
+			currentMinute = copy.toString();
+		}
+		String currentTime = LocalTime.now().getHour() + ":" +currentMinute;
 		try {
 			writer = new BufferedWriter(new FileWriter("high_scores.txt", appendFile));
 			writer.append(currentDate + '\t' + currentTime+ '\t' + score);
@@ -288,10 +297,20 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 	}
 	/********************************************************************************/
 	public void displayHighScores(Graphics g) {
-		String in = "", date = "", time = "", scoreO = "", keeper = ""; 
-		int a = 0;  
+		String in = "", date = "", time = "", scoreO = "", keeper = "", display[] = null; 
+		int i = 0;  
 		int counter = 0;
 		try {
+			reader = new BufferedReader(new FileReader("high_scores.txt"));
+			in = reader.readLine();
+			while(in != null && !in.equals("") ) {
+				counter++;
+				in = reader.readLine();
+			}
+			reader.close();
+			display = new String[counter];
+			counter = 0;
+			
 			reader = new BufferedReader(new FileReader("high_scores.txt"));
 			in = reader.readLine();
 			while(in != null && !in.equals("") ) {
@@ -300,9 +319,16 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 				keeper = this.untilTab(in)[1];
 				time = this.untilTab(keeper)[0];
 				scoreO = this.untilTab(keeper)[1];
-				if(counter < 11)this.drawTextMiddle(g, "score: " + scoreO +"     "+ date + "  "+time, frameW/2, counter * 40 + 140, 30, Color.white);
-				a = 0;
+				if(counter < 11) {
+					display[i] = "score: " + scoreO +"     "+ date + "  "+time;
+				}
+				i++;
 				in = reader.readLine();
+			}
+			counter = 1;
+			for(i = display.length-1; i >= 0 ; i--) {
+				if(counter<11)this.drawTextMiddle(g, display[i], frameW/2, counter * 40 + 140, 30, Color.white);
+				counter++;
 			}
 		}catch(IOException e) {
 			System.out.println("file not found");
@@ -335,6 +361,14 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 		}
 		return null;
 	}
+	public void background(Graphics g) {
+		for(int i = 0; i < background.length; i++) {
+			g.drawImage(background[i], backgroundX[i], 0, null);
+		}
+		for(int i = 0; i < ground.length; i++) {
+			g.drawImage(ground[i], groundX[i], frameH - ground[i].getHeight(null), null);
+		}
+	}
 	/********************************************************************************/
 	public void actionPerformed(ActionEvent event) {
 			repaint();
@@ -346,7 +380,7 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 			this.bInstructions.mouseOver(e);
 			this.bHighScores.mouseOver(e);
 		}else if(scene.equals("instructions")) {
-
+			this.bMainMenu.mouseOver(e);
 		}else if(scene.equals("gameplay")) {
 			this.bTryAgain.mouseOver(e);
 			this.bMainMenu.mouseOver(e);
@@ -362,7 +396,6 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 	public void mousePressed(MouseEvent e) {
 		String check;
 		if(scene.equals("menu")) {
-			
 			check = bPlayGame.clicked(e);
 			if(!check.equals("")) scene = check;
 			
@@ -371,14 +404,16 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 			
 			check = bHighScores.clicked(e);
 			if(!check.equals("")) scene = check;
-
 		}else if(scene.equals("instructions")) {
-
+			check = bMainMenu.clicked(e);
+			if(!check.equals("")) scene = check;
 		}else if(scene.equals("gameplay")) {
 			flappy.clicked();
+			
 			if(gameOver) {
 				check = bTryAgain.clicked(e);
 				if(!check.equals("")) init();
+				
 				check = bMainMenu.clicked(e);
 				if(!check.equals("")) {
 					init();
