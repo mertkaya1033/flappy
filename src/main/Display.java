@@ -33,7 +33,7 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 	private Bird flappy;
 	private Pipe pipes[];
 	private Image ground[], background[];
-	private int retGroundX,retBackgroundX, randSpaceY, groundX[], backgroundX[];
+	private int retGroundX,retBackgroundX, randSpaceY, groundX[], backgroundX[], retPipes;
 	private boolean gameOver = false, isHighScore = false;
 	private Font font;
 	private int speed = 3;
@@ -108,9 +108,11 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 		//increases the speed every 6 points
 		flappy.setxPos(100);
 		if(!gameOver) {
-			if(score % 6 == 0 && score != prevScore) {
+			if(score % 2 == 0 && score != prevScore) {
 				speed++;
 				prevScore = score;
+					increaseGap();
+				
 			}
 			for(int i = 0; i < pipes.length; i++) {
 				/*
@@ -119,7 +121,12 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 				 */
 				if(pipes[i].getxPos() + pipes[i].getW() < 0) { 
 					this.randSpaceY = (int)(Math.random() * 300) + 125;
+					
 					pipes[i].returnX();
+					if(pipes[i].isGapIncreased()) {
+						pipes[i].setRetX(this.retPipes);
+						pipes[i].setGapIncreased(false);
+					}
 					pipes[i].setSpaceY(randSpaceY);
 					pipes[i].setBirdPassed(false);
 				}
@@ -211,14 +218,12 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 	public void init() {
 		gameOver = false;
 		isHighScore = false;
-		speed = 3;
-		score = 0;
-		prevScore = 0;
+		speed = 3; score = 0; prevScore = 0; retPipes = 0;
 		Image birdImage = new ImageIcon("images/flappyBird.png").getImage();
 		Image groundImage = new ImageIcon("images/ground.png").getImage();
 		Image backgroundImage = new ImageIcon("images/background.png").getImage();
 		flappy = new Bird(birdImage, frameW/2 - birdImage.getWidth(null)/2, frameH/2 - 50);
-		pipes = new Pipe[5];
+		pipes = new Pipe[3];
 		ground = new Image[3];
 		groundX = new int[3];
 		background = new Image[3];
@@ -238,8 +243,8 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 		retBackgroundX = (i-1) * background[i-1].getWidth(null);
 		
 		for(i = 0; i < pipes.length; i++) {
-			this.randSpaceY = (int)(Math.random() * 300) + 125;
-			pipes[i] = new Pipe(800 + i * 300, 50, this.frameH, this.randSpaceY, 200, 300 * pipes.length);
+			this.randSpaceY = (int)(Math.random() * 250) + 125;
+			pipes[i] = new Pipe(800 + i * 300, 50, this.frameH, this.randSpaceY, 200, 300 * pipes.length-50);
 		}
 	}
 	public void clearFile() {
@@ -368,6 +373,15 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 		for(int i = 0; i < ground.length; i++) {
 			g.drawImage(ground[i], groundX[i], frameH - ground[i].getHeight(null), null);
 		}
+	}
+	public void increaseGap() {
+		int i;
+		for(i = 0; i < pipes.length; i++) {
+			pipes[i].addRetX(50 * (i+1) );
+			pipes[i].setGapIncreased(true);
+		}
+		retPipes = pipes[i-1].getRetX();
+
 	}
 	/********************************************************************************/
 	public void actionPerformed(ActionEvent event) {

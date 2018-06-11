@@ -5,7 +5,7 @@ import java.awt.Graphics;
 
 public class Pipe {
 	private int xPos, w, h, spaceY, spaceW, retX;
-	boolean birdPassed = false;
+	private boolean birdPassed = false, isGapIncreased = false;
 	public Pipe(int xPos, int w, int h, int spaceY, int spaceW,int retX) {
 		this.xPos = xPos;
 		this.w = w;
@@ -54,4 +54,17 @@ public class Pipe {
 	public void addRetX(int retX) {
 		this.retX += retX;
 	}
+	public int getRetX() {
+		return this.retX;
+	}
+	public void setRetX(int retX) {
+		this.retX = retX;
+	}
+	public boolean isGapIncreased() {
+		return isGapIncreased;
+	}
+	public void setGapIncreased(boolean isGapIncreased) {
+		this.isGapIncreased = isGapIncreased;
+	}
+	
 }
