@@ -16,9 +16,9 @@ public class MainClass {
 	static JFrame frame;
 	static Display disp;
 	public static void main(String[] args) {
-		disp = new Display(1500, 750);
+		disp = new Display(500, 750);
 		frame = new JFrame("FLAPPY BIRD");
-		frame.setSize(1500, 750);
+		frame.setSize(500, 750);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(disp);
 		frame.setVisible(true);

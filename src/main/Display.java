@@ -34,6 +34,8 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 	private Pipe pipes[];
 	private Image ground[], background[];
 	private int retGroundX,retBackgroundX, randSpaceY, groundX[], backgroundX[], retPipes;
+	private Image skins[];
+	private Image currentSkin;
 	private boolean gameOver = false, isHighScore = false;
 	private Font font;
 	private int speed = 3;
@@ -47,7 +49,10 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 	private Button bMainMenu;
 	private Button bTryAgain;
 	private Button bHighScores;
-//	private Button bClear;
+	private Button bClear;
+	private Button bRight;
+	private Button bLeft;
+	private Button bStart;
 	private BufferedWriter writer;
 	private BufferedReader reader;
 	/********************************************************************************/
@@ -59,12 +64,15 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 		this.setFocusTraversalKeysEnabled(false);
 		this.frameW = frameW;
 		this.frameH = frameH;
-		this.bPlayGame = new Button(this,"Play Game", frameW/2, frameH/2 + 50, 35, "gameplay");
+		this.bPlayGame = new Button(this,"Play Game", frameW/2, frameH/2 + 50, 35, "gameplay");//change it to skin
 		this.bInstructions = new Button(this, "Instructions", frameW/2, frameH/2 + 174, 35, "instructions");
 		this.bMainMenu = new Button(this,"Main Menu", frameW/2, frameH/2 + 112, 35, "menu");
 		this.bTryAgain = new Button(this,"Try Again", frameW/2, frameH/2 + 50, 35, "false");
 		this.bHighScores = new Button(this,"High Scores", frameW/2, frameH/2 + 112, 35, "high scores");
-
+		this.bClear = new Button(this,"Clear", frameW/2, frameH - 78, 35, "clear");
+		this.bRight = new Button(this,"   >   ", frameW/2 + 150, frameH/2 + 200, 35, "1");
+		this.bLeft = new Button(this,"   <   ", frameW/2 - 150, frameH/2 + 200, 35, "-1");
+		this.bStart = new Button(this,"Start", frameW/2 , frameH/2 + 200, 35, "gameplay");
 		this.init();
 		this.updateHighScore();
 
@@ -78,7 +86,7 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 		}else if(scene.equals("gameplay")) {
 			gamePlay(g);
 		}else if(scene.equals("skins")) {
-
+			this.skins(g);
 		}else if(scene.equals("high scores")) {
 			highScores(g);	
 		}
@@ -108,10 +116,10 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 		//increases the speed every 6 points
 		flappy.setxPos(100);
 		if(!gameOver) {
-			if(score % 2 == 0 && score != prevScore) {
+			if(score % 5 == 0 && score != prevScore) {
 				speed++;
 				prevScore = score;
-					increaseGap();
+//					increaseGap();
 				
 			}
 			for(int i = 0; i < pipes.length; i++) {
@@ -205,6 +213,7 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 		this.displayHighScores(g);
 		bMainMenu.setPos(frameW/2, frameH-140);
 		bMainMenu.display(g);
+		bClear.display(g);
 	}
 	public void instructions(Graphics g) {
 		background(g);
@@ -213,6 +222,15 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 		this.drawTextMiddle(g, "INSTRUCTIONS", this.frameW/2, 100, 58, new Color(255, 100, 100));
 		bMainMenu.setPos(frameW/2, frameH-140);
 		bMainMenu.display(g);
+	}
+	public void skins(Graphics g) {
+		this.background(g);
+		g.setColor(new Color(0,0,0,100));
+		g.fillRect(0, 0, frameW, frameH);
+//		g.drawImage(this.currentSkin, frameW/2 - this.currentSkin.getWidth(null)/2, frameH/2 - this.currentSkin.getHeight(null)/2, null);
+		this.bRight.display(g);
+		this.bLeft.display(g);
+		this.bStart.display(g);
 	}
 	
 	public void init() {
@@ -332,7 +350,7 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 			}
 			counter = 1;
 			for(i = display.length-1; i >= 0 ; i--) {
-				if(counter<11)this.drawTextMiddle(g, display[i], frameW/2, counter * 40 + 140, 30, Color.white);
+				if(counter<5)this.drawTextMiddle(g, display[i], frameW/2, counter * 40 + 140, 30, Color.white);
 				counter++;
 			}
 		}catch(IOException e) {
@@ -374,15 +392,17 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 			g.drawImage(ground[i], groundX[i], frameH - ground[i].getHeight(null), null);
 		}
 	}
-	public void increaseGap() {
-		int i;
-		for(i = 0; i < pipes.length; i++) {
-			pipes[i].addRetX(50 * (i+1) );
-			pipes[i].setGapIncreased(true);
-		}
-		retPipes = pipes[i-1].getRetX();
-
-	}
+/*
+//	private void increaseGap() {
+//		int i;
+//		for(i = 0; i < pipes.length; i++) {
+//			pipes[i].addRetX(50 * (i+1) );
+//			pipes[i].setGapIncreased(true);
+//		}
+//		retPipes = pipes[i-1].getRetX() + 50;
+//
+//	}
+*/
 	/********************************************************************************/
 	public void actionPerformed(ActionEvent event) {
 			repaint();
@@ -402,6 +422,7 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 
 		}else if(scene.equals("high scores")) {
 			this.bMainMenu.mouseOver(e);
+			this.bClear.mouseOver(e);
 		}
 	}
 	public void mouseDragged(MouseEvent e) {}
@@ -435,10 +456,14 @@ public class Display extends JPanel implements KeyListener, MouseListener, Mouse
 				}
 			}
 		}else if(scene.equals("skins")) {
-
 		}else if(scene.equals("high scores")) {
 			check = bMainMenu.clicked(e);
 			if(!check.equals("")) scene = check;
+			check = bClear.clicked(e);
+			if(!check.equals("")) {
+				this.clearFile();
+				this.highScore = 0;
+			}
 		}
 	}
 	public void mouseClicked(MouseEvent e) {}
